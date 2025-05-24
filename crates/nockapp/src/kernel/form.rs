@@ -305,9 +305,8 @@ fn serf_loop(
         match action {
             SerfAction::LoadState { state, result } => {
                 let res = load_state_from_bytes(&mut serf, &state);
-                let _ = result.send(res).map_err(|e| {
+                let _ = result.send(res).inspect_err(|e| {
                     debug!("Could not send load state result");
-                    e
                 });
             }
             SerfAction::Stop => {
@@ -315,9 +314,8 @@ fn serf_loop(
             }
             SerfAction::GetStateBytes { result } => {
                 let state_bytes = create_state_bytes(&mut serf);
-                let _ = result.send(state_bytes).map_err(|e| {
+                let _ = result.send(state_bytes).inspect_err(|e| {
                     debug!("Could not send state bytes to dropped channel");
-                    e
                 });
             }
             SerfAction::GetKernelStateSlab { result } => {
@@ -330,9 +328,8 @@ fn serf_loop(
                         Ok(slab)
                     },
                 );
-                let _ = result.send(kernel_state_slab).map_err(|e| {
+                let _ = result.send(kernel_state_slab).inspect_err(|e| {
                     debug!("Tried to send to dropped result channel");
-                    e
                 });
             }
             SerfAction::GetColdStateSlab { result } => {
@@ -342,9 +339,8 @@ fn serf_loop(
                     slab.copy_into(cold_state_noun);
                     slab
                 };
-                let _ = result.send(cold_state_slab).map_err(|e| {
+                let _ = result.send(cold_state_slab).inspect_err(|e| {
                     debug!("Could not send cold state to dropped channel.");
-                    e
                 });
             }
             SerfAction::Checkpoint { result } => {
@@ -360,9 +356,8 @@ fn serf_loop(
                 if inhibit.load(Ordering::SeqCst) {
                     let _ = result
                         .send(Err(CrownError::Unknown("Serf stopping".to_string())))
-                        .map_err(|e| {
+                        .inspect_err(|e| {
                             debug!("Tried to send inhibited peek state to dropped channel");
-                            e
                         });
                 } else {
                     let ovo_noun = ovo.copy_to_stack(serf.stack());
@@ -372,9 +367,8 @@ fn serf_loop(
                         slab.copy_into(noun);
                         slab
                     });
-                    let _ = result.send(noun_slab_res).map_err(|e| {
+                    let _ = result.send(noun_slab_res).inspect_err(|e| {
                         debug!("Tried to send peek state to dropped channel");
-                        e
                     });
                 }
             }
@@ -386,9 +380,8 @@ fn serf_loop(
                 if inhibit.load(Ordering::SeqCst) {
                     let _ = result
                         .send(Err(CrownError::Unknown("Serf stopping".to_string())))
-                        .map_err(|e| {
+                        .inspect_err(|e| {
                             debug!("Failed to send inihibited poke result from serf thread");
-                            e
                         });
                 } else {
                     let cause_noun = cause.copy_to_stack(serf.stack());
@@ -398,9 +391,8 @@ fn serf_loop(
                         slab.copy_into(noun);
                         slab
                     });
-                    let _ = result.send(noun_slab_res).map_err(|e| {
+                    let _ = result.send(noun_slab_res).inspect_err(|e| {
                         debug!("Failed to send poke result from serf thread");
-                        e
                     });
                 }
             }

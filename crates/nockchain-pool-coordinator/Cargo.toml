@@ -1,0 +1,57 @@
+[package]
+name = "nockchain-pool-coordinator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+nockchain = { path = "../nockchain" }
+nockapp = { path = "../nockapp" }
+nockvm = { path = "../nockvm/rust/nockvm" }
+zkvm-jetpack = { path = "../zkvm-jetpack" }
+
+# Async runtime
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Database
+redis = { workspace = true }
+
+# Serialization
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+
+# Web framework
+axum = { workspace = true }
+tower = { workspace = true }
+tokio-tungstenite = { workspace = true }
+
+# Observability
+tracing = { workspace = true }
+prometheus = { workspace = true }
+
+# Utilities
+uuid = { workspace = true }
+sha2 = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+hex = "0.4"
+lazy_static = { workspace = true }
+
+[dev-dependencies]
+tracing-test = { workspace = true }
+
+[[bin]]
+name = "nockchain-pool-coordinator"
+path = "src/bin/nockchain-pool-coordinator.rs"
+
+[dependencies.clap]
+workspace = true
+features = ["derive", "env"]
+
+[dependencies.tracing-subscriber]
+workspace = true
+features = ["env-filter", "fmt"]

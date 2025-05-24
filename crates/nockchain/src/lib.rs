@@ -1,4 +1,5 @@
 pub mod mining;
+pub mod pool_client;
 
 use std::error::Error;
 use std::fs;
@@ -571,8 +572,9 @@ pub async fn init_with_kernel(
 
     let mine = cli.as_ref().map_or(false, |c| c.mine);
 
+    let mining_mode = mining_config.map(crate::mining::MiningMode::Solo);
     let mining_driver =
-        crate::mining::create_mining_driver(mining_config, mine, Some(mining_init_tx));
+        crate::mining::create_mining_driver(mining_mode, mine, Some(mining_init_tx));
     nockapp.add_io_driver(mining_driver).await;
 
     let libp2p_driver = nockchain_libp2p_io::nc::make_libp2p_driver(

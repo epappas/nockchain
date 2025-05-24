@@ -168,7 +168,7 @@ impl NockApp {
         // let cancel_token = tokio_util::sync::CancellationToken::new();
         let metrics = NockAppMetrics::register(gnort::global_metrics_registry())
             .expect("Failed to register metrics!");
-        let signals = Signals::new(&[TERM_SIGNALS, &[SIGHUP]].concat())
+        let signals = Signals::new([TERM_SIGNALS, &[SIGHUP]].concat())
             .expect("Failed to create signal handler");
         let (exit, exit_recv) = NockAppExit::new();
         Self {
@@ -426,10 +426,8 @@ impl NockApp {
                                 if let Err(e) = exit.done(Err(NockAppError::from(e))).await {
                                     error!("Error completing shutdown: {e}");
                                 }
-                            } else {
-                                if let Err(e) = exit.done(res).await {
-                                    error!("Error completing shutdown: {e}");
-                                }
+                            } else if let Err(e) = exit.done(res).await {
+                                error!("Error completing shutdown: {e}");
                             }
                         });
                         Ok(NockAppRun::Pending)

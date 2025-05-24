@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # Jaeger all-in-one with OTLP support
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "4317:4317"     # OTLP gRPC receiver (what nockchain uses)
+      - "4318:4318"     # OTLP HTTP receiver
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    volumes:
+      - jaeger-data:/badger
+    restart: unless-stopped
+
+volumes:
+  jaeger-data:

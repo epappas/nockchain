@@ -1154,6 +1154,20 @@ fn prepend_tas(slab: &mut NounSlab, tas_str: &str, nouns: Vec<Noun>) -> Result<N
     Ok(T(slab, &cell_elements))
 }
 
+fn dial_initial_peers(
+    swarm: &mut Swarm<NockchainBehaviour>,
+    peers: &[Multiaddr],
+) -> Result<(), NockAppError> {
+    for peer in peers {
+        let peer = peer.clone();
+        swarm.dial(peer.clone()).map_err(|e| {
+            error!("Failed to dial initial peer {}: {}", peer, e);
+            NockAppError::OtherError
+        })?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use nockapp::noun::slab::NounSlab;
@@ -1967,18 +1981,4 @@ mod tests {
         let contains = tracker.seen_txs.contains(&tx_id_str);
         assert!(contains, "tx ID should be marked as seen");
     }
-}
-
-fn dial_initial_peers(
-    swarm: &mut Swarm<NockchainBehaviour>,
-    peers: &[Multiaddr],
-) -> Result<(), NockAppError> {
-    for peer in peers {
-        let peer = peer.clone();
-        swarm.dial(peer.clone()).map_err(|e| {
-            error!("Failed to dial initial peer {}: {}", peer, e);
-            NockAppError::OtherError
-        })?;
-    }
-    Ok(())
 }

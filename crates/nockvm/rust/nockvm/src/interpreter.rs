@@ -317,12 +317,12 @@ impl NockCancelToken {
                 break false;
             } else {
                 trace!("Nock cancellation: cancelling");
-                if let Ok(_) = self.running_status.compare_exchange(
+                if self.running_status.compare_exchange(
                     running,
                     running.neg(),
                     Ordering::SeqCst,
                     Ordering::SeqCst,
-                ) {
+                ).is_ok() {
                     break true;
                 }
             }
@@ -1022,19 +1022,17 @@ pub fn interpret(context: &mut Context, mut subject: Noun, formula: Noun) -> Res
             }
         } else if running_status == NockCancelToken::RUNNING_IDLE {
             break;
-        } else {
-            if context
-                .running_status
-                .compare_exchange(
-                    running_status,
-                    running_status - 1,
-                    Ordering::SeqCst,
-                    Ordering::SeqCst,
-                )
-                .is_ok()
-            {
-                break;
-            }
+        } else if context
+            .running_status
+            .compare_exchange(
+                running_status,
+                running_status - 1,
+                Ordering::SeqCst,
+                Ordering::SeqCst,
+            )
+            .is_ok()
+        {
+            break;
         }
     }
 

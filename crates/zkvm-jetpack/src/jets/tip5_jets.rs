@@ -19,7 +19,7 @@ pub fn hoon_list_to_sponge(list: Noun) -> Result<[u64; STATE_SIZE], JetErr> {
         let cell = current.as_cell()?;
         sponge[i] = cell.head().as_atom()?.as_u64()?;
         current = cell.tail();
-        i = i + 1;
+        i += 1;
     }
 
     if i != STATE_SIZE {
